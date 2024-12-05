@@ -1,0 +1,90 @@
+#include <iostream>
+#include <unordered_map>
+#include <string>
+using namespace std;
+
+// Node structure for Suffix Tree
+class SuffixTreeNode {
+public:
+    unordered_map<char, SuffixTreeNode*> children;
+    bool endOfSuffix;
+
+    SuffixTreeNode() {
+        endOfSuffix = false;
+    }
+};
+
+// Suffix Tree Class
+class SuffixTree {
+private:
+    SuffixTreeNode* root;
+    string text;
+
+    void addSuffix(const string& suffix) {
+        SuffixTreeNode* node = root;
+        for (char c : suffix) {
+            if (node->children.find(c) == node->children.end()) {
+                node->children[c] = new SuffixTreeNode();
+            }
+            node = node->children[c];
+        }
+        node->endOfSuffix = true;
+    }
+
+    void display(SuffixTreeNode* node, const string& prefix) const {
+        if (node->endOfSuffix) {
+            cout << prefix << endl;
+        }
+        for (const auto& child : node->children) {
+            display(child.second, prefix + child.first);
+        }
+    }
+
+    bool search(SuffixTreeNode* node, const string& pattern) const {
+        for (char c : pattern) {
+            if (node->children.find(c) == node->children.end()) {
+                return false;
+            }
+            node = node->children[c];
+        }
+        return true;
+    }
+
+public:
+    SuffixTree(const string& inputText) {
+        root = new SuffixTreeNode();
+        text = inputText;
+        constructSuffixTree();
+    }
+
+    ~SuffixTree() {
+        delete root; // Memory cleanup if necessary
+    }
+
+    void constructSuffixTree() {
+        for (size_t i = 0; i < text.size(); ++i) {
+            addSuffix(text.substr(i));
+        }
+    }
+
+    void display() const {
+        display(root, "");
+    }
+
+    bool search(const string& pattern) const {
+        return search(root, pattern);
+    }
+};
+
+// Example Usage
+int main() {
+    string text;
+    cout << "\nEnter a string: ";
+    cin >> text;
+    SuffixTree suffixTree(text);
+
+    cout << "\nSuffixes of the text:" << endl;
+    suffixTree.display();
+
+    return 0;
+}

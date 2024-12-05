@@ -1,0 +1,57 @@
+#include <iostream>
+#include <vector>
+#include <cstdlib>
+#include <ctime>
+
+using namespace std;
+
+// Function to partition the array around a randomly chosen pivot
+int partition(vector<int>& arr, int low, int high) {
+    // Randomly choose a pivot index
+    int pivotIndex = low + rand() % (high - low + 1);
+    int pivotValue = arr[pivotIndex];
+    
+    // Move the pivot to the end
+    swap(arr[pivotIndex], arr[high]);
+    
+    int storeIndex = low;
+    for (int i = low; i < high; ++i) {
+        if (arr[i] < pivotValue) {
+            swap(arr[i], arr[storeIndex]);
+            ++storeIndex;
+        }
+    }
+    
+    // Move the pivot to its final place
+    swap(arr[storeIndex], arr[high]);
+    return storeIndex;
+}
+
+// Randomized Select function
+int randomizedSelect(vector<int>& arr, int low, int high, int k) {
+    if (low == high) {
+        return arr[low]; // Only one element in the array
+    }
+    
+    int pivotIndex = partition(arr, low, high);
+    
+    if (k == pivotIndex) {
+        return arr[k];
+    } else if (k < pivotIndex) {
+        return randomizedSelect(arr, low, pivotIndex - 1, k);
+    } else {
+        return randomizedSelect(arr, pivotIndex + 1, high, k);
+    }
+}
+
+int main() {
+    srand(time(0)); // Random Number Generator
+
+    vector<int> arr = {45, 22, 79, 10, 67, 33, 5, 88, 54, 14};
+    int k = 6; // Find the 7th smallest element (index is 6)
+
+    int result = randomizedSelect(arr, 0, arr.size() - 1, k);
+    cout << "\nThe " << k + 1 << "th smallest element is " << result << endl;
+
+    return 0;
+}
